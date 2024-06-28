@@ -13,19 +13,32 @@
 #include "i2c.h"
 #include <util/delay.h>
 
+/*
+P7 P6 P5 P4 P3 P2 P1 P0
+ |  |  |  |	 |  |  |  |--RS
+ |  |  |  |	 |  |  |-----RW
+ |  |  |  |	 |  |--------E
+ |  |  |  |	 |-----------BT //ПОДСВЕТКА
+ |  |  |  |--------------D4
+ |  |  |-----------------D5
+ |  |--------------------D6
+ |-----------------------D7
+
+*/
+
 
 static struct {
 	uint8_t led_pin;
 } lcd;
 
 
-void putnibble(char t)
+void putnibble(char t)  //ОТПРАВЛЯЕМ ПОЛУБАЙТ
 {
 	t <<= 4;
-	i2c_send_packet(lcd.led_pin |= 0x04, SLA_W);
+	i2c_send_packet(lcd.led_pin |= 0x04, SLA_W); //E -строб подтягиваем в 1
 	_delay_us(50);
-	i2c_send_packet(lcd.led_pin | t, SLA_W);
-	i2c_send_packet(lcd.led_pin &= ~0x04, SLA_W);
+	i2c_send_packet(lcd.led_pin | t, SLA_W); //передаем данные
+	i2c_send_packet(lcd.led_pin &= ~0x04, SLA_W); //E -строб подтягиваем в 0
 	_delay_us(50);
 }
 

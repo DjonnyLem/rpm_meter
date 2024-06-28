@@ -15,12 +15,12 @@
  avr-objdump -m avr -S ./main.elf  //диассамблирование
 */
 
-
+#define F_CPU 16000000UL
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "lcd1602.h"
-
+#include <util/delay.h>
 
 #define COUNT_TIME 156 //значение в регистр совпадения таймера (10мс)
 
@@ -55,6 +55,123 @@ const uint8_t magic[]={
 	0b00000011
 };
 
+	uint8_t simA[48]={
+		
+		0b00000011,
+		0b00000111,
+		0b00001111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111,
+		0b00011111
+	};
+	
+
+uint8_t simR[48]={
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00000000,
+	0b00000000,
+	0b00000000,
+	0b00000000,
+	0b00000000,
+	
+	0b00011000,
+	0b00011100,
+	0b00011110,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	
+	
+	
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	
+	0b00011111,
+	0b00011111,
+	0b00011111,
+	0b00001111,
+	0b00000111,
+	0b00000011,
+	0b00000001,
+	0b00000000,
+	
+	0b00011110,
+	0b00011100,
+	0b00011000,
+	0b00010000,
+	0b00011000,
+	0b00011100,
+	0b00011110,
+	0b00011111	
+	
+	};
+
 //-----Прототипы функций----------------------------
 void timer_init();
 void port_init();
@@ -82,11 +199,60 @@ int main() {
 	port_init();
 	lcd1602_clear();
 	sei(); // включить глобальные прерывания
+	lcd1602_goto_xy(0, 0);
 	lcd1602_send_string("Hello world");
 	lcd1602_goto_xy(0,  1);
-	lcd1602_send_string("Hello, bro");
-
+	lcd1602_send_string("I2C");
+	_delay_ms(3000);
+	lcd1602_clear();
+	
+	void A (void){
+	lcd1602_send_byte(0b01000000, LCD_COMMAND);
+	//_delay_us(40);
+	
+	for (uint8_t i=0; i<48; i++)
+	{
+		lcd1602_send_byte(simA[i], LCD_DATA);
+	}
+	lcd1602_send_byte(0b10000000, LCD_DATA);	
+	lcd1602_goto_xy(1, 0);
+	//lcd1602_send_char(0b00000000);
+	//lcd1602_send_char('D');
+	lcd1602_send_byte(0b00000000, LCD_DATA);
+	lcd1602_send_byte(0b00000001, LCD_DATA);
+	lcd1602_send_byte(0b00000010, LCD_DATA);
+	lcd1602_goto_xy(1, 1);
+	lcd1602_send_byte(0b00000011, LCD_DATA);
+	lcd1602_send_byte(0b00000100, LCD_DATA);
+	lcd1602_send_byte(0b00000101, LCD_DATA);
+};
+	
+	void R (void){
+	lcd1602_send_byte(0b01000000, LCD_COMMAND);
+	//_delay_us(40);
+	
+	for (uint8_t i=0; i<48; i++)
+	{
+		lcd1602_send_byte(simR[i], LCD_DATA);
+	}
+	lcd1602_send_byte(0b10000000, LCD_DATA);	
+	lcd1602_goto_xy(5, 0);
+	//lcd1602_send_char(0b00000000);
+	//lcd1602_send_char('D');
+	lcd1602_send_byte(0b00000000, LCD_DATA);
+	lcd1602_send_byte(0b00000001, LCD_DATA);
+	lcd1602_send_byte(0b00000010, LCD_DATA);
+	lcd1602_goto_xy(5, 1);
+	lcd1602_send_byte(0b00000011, LCD_DATA);
+	lcd1602_send_byte(0b00000100, LCD_DATA);
+	lcd1602_send_byte(0b00000101, LCD_DATA);
+	};
+	sei();	// включить глобальные прерывания
 	while(1) {
+		A();
+		lcd1602_clear();
+		//_delay_ms(30);
+		R();
 
 	}
 }

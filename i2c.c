@@ -14,7 +14,8 @@
 
 void i2c_init(void)
 {
-	TWBR = 0xFF;
+	TWSR=0;
+	TWBR=72;
 }
 
 void i2c_start_condition(void)
